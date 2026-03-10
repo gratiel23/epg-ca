@@ -3,20 +3,27 @@ import gzip
 
 url = "https://epgshare01.online/epgshare01/epg_ripper_CA1.xml.gz"
 
-# télécharger le fichier
-urllib.request.urlretrieve(url, "epg.xml.gz")
+req = urllib.request.Request(
+    url,
+    headers={
+        "User-Agent": "Mozilla/5.0"
+    }
+)
 
-# décompresser
-with gzip.open("epg.xml.gz", "rb") as f:
-    data = f.read().decode("utf-8", errors="ignore")
+with urllib.request.urlopen(req) as response:
+    data = response.read()
 
-# modifier les noms de chaines
-data = data.replace("CAF ", "CA FR ")
-data = data.replace("CA-BK", "CA EN")
-data = data.replace("CA BK", "CA EN")
-
-# sauvegarder
-with open("epg_ca.xml", "w", encoding="utf-8") as f:
+with open("epg.xml.gz", "wb") as f:
     f.write(data)
 
-print("EPG généré")
+with gzip.open("epg.xml.gz", "rb") as f:
+    xml = f.read().decode("utf-8", errors="ignore")
+
+xml = xml.replace("CAF ", "CA FR ")
+xml = xml.replace("CA-BK", "CA EN")
+xml = xml.replace("CA BK", "CA EN")
+
+with open("epg_ca.xml", "w", encoding="utf-8") as f:
+    f.write(xml)
+
+print("EPG generated")
