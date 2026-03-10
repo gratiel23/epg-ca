@@ -1,0 +1,32 @@
+name: update epg
+
+on:
+  schedule:
+    - cron: "0 5 * * *"
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: setup python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.x"
+
+      - name: install requests
+        run: pip install requests
+
+      - name: run script
+        run: python update_epg.py
+
+      - name: commit epg
+        run: |
+          git config --global user.name "epg"
+          git config --global user.email "bot@epg.com"
+          git add epg_ca.xml
+          git commit -m "update epg" || echo "no changes"
+          git push
